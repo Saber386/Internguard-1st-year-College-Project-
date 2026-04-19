@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>InternGuard — Internship Scam Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+:root {
+  --bg: #0c0c0e;
+  --bg-1: #111113;
+  --bg-2: #16161a;
+  --bg-3: #1c1c21;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.14);
+  --text: #f0f0f2;
+  --text-2: #8a8a96;
+  --text-3: #555560;
+  --accent: #e8e8f0;
+  --accent-blue: #5b8fff;
+  --accent-blue-dim: rgba(91,143,255,0.1);
+  --accent-blue-border: rgba(91,143,255,0.2);
+  --green: #4ade80;
+  --green-dim: rgba(74,222,128,0.08);
+  --green-border: rgba(74,222,128,0.18);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.08);
+  --red-border: rgba(248,113,113,0.18);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251,191,36,0.08);
+  --amber-border: rgba(251,191,36,0.18);
+  --radius: 8px;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+ 
+html { scroll-behavior: smooth; }
+ 
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+ 
+/* ── Pages ── */
+.page { display: none; min-height: 100vh; flex-direction: column; }
+.page.active { display: flex; }
+ 
+/* ── Nav ── */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  height: 52px;
+  padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(12,12,14,0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 15px; font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text);
+  cursor: pointer;
+}
+.nav-logo span { color: var(--accent-blue); }
+.nav-right { display: flex; align-items: center; gap: 4px; }
+ 
+/* ── Base Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius);
+  font-size: 13px; font-weight: 500; font-family: var(--font-body);
+  cursor: pointer; transition: all 0.15s; border: none;
+  white-space: nowrap; text-decoration: none;
+}
+.btn-ghost {
+  background: transparent; color: var(--text-2);
+}
+.btn-ghost:hover { color: var(--text); background: var(--bg-3); }
+.btn-outline {
+  background: transparent; color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover { border-color: var(--border-hover); background: var(--bg-3); }
+.btn-solid {
+  background: var(--text); color: var(--bg);
+  font-weight: 600;
+}
+.btn-solid:hover { background: #d0d0dc; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-full { width: 100%; }
+.btn-lg { padding: 11px 22px; font-size: 14px; }
+.btn-danger-ghost {
+  background: transparent; color: var(--red);
+  border: 1px solid var(--red-border);
+}
+.btn-danger-ghost:hover { background: var(--red-dim); }
+ 
+/* ── Forms ── */
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 12px; font-weight: 500; color: var(--text-2); letter-spacing: 0.01em; }
+.form-input {
+  padding: 9px 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 13px; font-family: var(--font-body);
+  outline: none; width: 100%;
+  transition: border-color 0.15s;
+}
+.form-input:focus { border-color: rgba(255,255,255,0.2); }
+.form-input::placeholder { color: var(--text-3); }
+textarea.form-input { resize: vertical; min-height: 100px; }
+.form-error { font-size: 11px; color: var(--red); display: none; }
+.form-error.visible { display: block; }
+ 
+/* ── Cards ── */
+.card {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+ 
+/* ── Utility ── */
+.container { max-width: 1024px; margin: 0 auto; padding: 0 32px; }
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.tag-safe { background: var(--green-dim); color: var(--green); border: 1px solid var(--green-border); }
+.tag-scam { background: var(--red-dim); color: var(--red); border: 1px solid var(--red-border); }
+.tag-warn { background: var(--amber-dim); color: var(--amber); border: 1px solid var(--amber-border); }
+ 
+/* ───────────────────────────────────────
+   LANDING
+─────────────────────────────────────── */
+#page-landing { background: var(--bg); }
+ 
+.landing-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - 52px);
+}
+ 
+.landing-left {
+  padding: 80px 64px 80px 0;
+  display: flex; flex-direction: column; justify-content: center;
+  border-right: 1px solid var(--border);
+}
+ 
+.landing-eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-3);
+  margin-bottom: 28px;
+}
+ 
+.landing-h1 {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4vw, 50px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+.landing-h1 span { color: var(--accent-blue); }
+ 
+.landing-desc {
+  font-size: 15px; color: var(--text-2);
+  line-height: 1.75;
+  max-width: 400px;
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+ 
+.landing-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+ 
+.landing-stats {
+  display: flex; gap: 40px;
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+.stat-val {
+  font-family: var(--font-display);
+  font-size: 22px; font-weight: 700;
+  color: var(--text);
+}
+.stat-label { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+ 
+.landing-right {
+  display: flex; flex-direction: column;
+  padding-left: 48px;
+  padding-top: 80px; padding-bottom: 80px;
+  justify-content: center;
+  gap: 8px;
+}
+ 
+.feature-row {
+  padding: 20px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+}
+.feature-row:hover {
+  background: var(--bg-2);
+  border-color: var(--border);
+}
+.feature-row-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 6px;
+}
+.feature-num {
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: 700; color: var(--text-3);
+  letter-spacing: 0.08em;
+}
+.feature-title {
+  font-size: 14px; font-weight: 600; color: var(--text);
+}
+.feature-desc { font-size: 13px; color: var(--text-2); line-height: 1.6; padding-left: 28px; }
+ 
+.scanner-cards {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-top: 32px;
+}
+.scanner-pick {
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.scanner-pick:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-2);
+}
+.scanner-pick-icon { font-size: 18px; }
+.scanner-pick-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.scanner-pick-desc { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+.scanner-pick-cta { font-size: 12px; color: var(--accent-blue); font-weight: 500; }
+ 
+.landing-footer {
+  padding: 20px 32px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; color: var(--text-3);
+}
+.landing-footer a { color: var(--text-2); cursor: pointer; text-decoration: none; }
+.landing-footer a:hover { color: var(--text); }
+ 
+/* ───────────────────────────────────────
+   AUTH
+─────────────────────────────────────── */
+.auth-wrap {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  padding: 48px 24px;
+}
+.auth-card {
+  width: 100%; max-width: 380px;
+  padding: 36px 32px;
+  border-radius: 10px;
+}
+.auth-kicker {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-3);
+  margin-bottom: 16px;
+}
+.auth-title {
+  font-family: var(--font-display);
+  font-size: 24px; font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.auth-sub { font-size: 13px; color: var(--text-2); margin-bottom: 28px; }
+.auth-form { display: flex; flex-direction: column; gap: 14px; }
+.auth-divider {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11px; color: var(--text-3);
+}
+.auth-divider::before, .auth-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.auth-footer {
+  text-align: center; font-size: 12px; color: var(--text-3);
+  margin-top: 16px;
+}
+.auth-footer a { color: var(--text-2); cursor: pointer; }
+.auth-footer a:hover { color: var(--text); }
+ 
+/* ───────────────────────────────────────
+   DASHBOARD
+─────────────────────────────────────── */
+.dash-layout { display: flex; flex: 1; min-height: 0; }
+ 
+.sidebar {
+  width: 200px; flex-shrink: 0;
+  background: var(--bg-1);
+  border-right: 1px solid var(--border);
+  padding: 24px 12px;
+  display: flex; flex-direction: column;
+}
+.sidebar-section { margin-bottom: 24px; }
+.sidebar-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-3);
+  padding: 0 10px; margin-bottom: 4px;
+}
+.sidebar-btn {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 10px; border-radius: 6px;
+  font-size: 13px; color: var(--text-2);
+  cursor: pointer; transition: all 0.12s;
+  border: none; background: none; font-family: var(--font-body);
+  width: 100%; text-align: left;
+}
+.sidebar-btn:hover { background: var(--bg-3); color: var(--text); }
+.sidebar-btn.active { background: var(--bg-3); color: var(--text); font-weight: 500; }
+.sidebar-btn .si { font-size: 14px; opacity: 0.7; }
+ 
+.user-pill {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: auto;
+  padding: 9px 10px;
+  border-radius: 6px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+}
+.user-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent-blue-dim);
+  border: 1px solid var(--accent-blue-border);
+  color: var(--accent-blue);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+  flex-shrink: 0;
+}
+.user-name { font-size: 12px; font-weight: 500; color: var(--text-2); }
+ 
+.main-area { flex: 1; padding: 40px 48px; overflow-x: hidden; }
+ 
+.page-header { margin-bottom: 32px; }
+.page-header h1 {
+  font-family: var(--font-display);
+  font-size: 22px; font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.page-header p { font-size: 13px; color: var(--text-2); margin-top: 4px; }
+ 
+/* ── Scanner Layout ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+ 
+.scan-card { padding: 24px; }
+.scan-form { display: flex; flex-direction: column; gap: 14px; }
+.char-hint { font-size: 11px; color: var(--text-3); text-align: right; margin-top: -8px; }
+ 
+/* ── Result ── */
+.result-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 280px; gap: 8px; color: var(--text-3); text-align: center;
+}
+.result-empty-icon { font-size: 28px; opacity: 0.25; }
+.result-empty p { font-size: 12px; }
+ 
+.result-body { display: flex; flex-direction: column; gap: 18px; }
+ 
+.verdict-block {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border-radius: var(--radius);
+}
+.verdict-block.safe { background: var(--green-dim); border: 1px solid var(--green-border); }
+.verdict-block.warn { background: var(--amber-dim); border: 1px solid var(--amber-border); }
+.verdict-block.scam { background: var(--red-dim); border: 1px solid var(--red-border); }
+.verdict-icon-lg { font-size: 20px; }
+.verdict-meta { }
+.verdict-kicker { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); }
+.verdict-label { font-size: 15px; font-weight: 700; font-family: var(--font-display); margin-top: 1px; }
+.verdict-label.safe { color: var(--green); }
+.verdict-label.warn { color: var(--amber); }
+.verdict-label.scam { color: var(--red); }
+ 
+.result-summary { font-size: 13px; color: var(--text-2); line-height: 1.7; }
+ 
+.section-kicker {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-3);
+  margin-bottom: 8px;
+}
+ 
+.score-track {
+  height: 3px; background: var(--bg-3);
+  border-radius: 100px; overflow: hidden;
+}
+.score-fill {
+  height: 100%; border-radius: 100px;
+  transition: width 0.8s cubic-bezier(.22,.68,0,1.2);
+}
+.score-labels {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: var(--text-3); margin-top: 5px;
+}
+ 
+.flags { display: flex; flex-direction: column; gap: 6px; }
+.flag {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+}
+.flag-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.flag-dot.high { background: var(--red); }
+.flag-dot.medium { background: var(--amber); }
+.flag-dot.low { background: var(--accent-blue); }
+.flag-content strong { font-weight: 600; color: var(--text); display: block; margin-bottom: 1px; }
+.flag-content span { color: var(--text-2); line-height: 1.5; }
+ 
+.result-note {
+  font-size: 11px; color: var(--text-3);
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  line-height: 1.6;
+}
+ 
+/* ── History ── */
+.hist-list { display: flex; flex-direction: column; }
+.hist-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.12s;
+}
+.hist-item:hover { background: var(--bg-2); }
+.hist-type {
+  width: 28px; height: 28px; border-radius: 6px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0;
+}
+.hist-info { flex: 1; min-width: 0; }
+.hist-target { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-meta { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+.hist-empty {
+  text-align: center; padding: 60px 24px;
+  color: var(--text-3); font-size: 13px;
+}
+ 
+/* ── Settings ── */
+.settings-wrap { max-width: 480px; display: flex; flex-direction: column; gap: 12px; }
+.setting-card { padding: 22px 24px; }
+.setting-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.setting-card p { font-size: 13px; color: var(--text-2); line-height: 1.65; margin-bottom: 16px; }
+.setting-card.danger { border-color: var(--red-border); }
+.setting-card.danger h3 { color: var(--red); }
+ 
+/* ── Toast ── */
+.toast-wrap {
+  position: fixed; bottom: 20px; right: 20px;
+  display: flex; flex-direction: column; gap: 6px;
+  z-index: 9999;
+}
+.toast {
+  padding: 10px 16px;
+  background: var(--bg-2);
+  border: 1px solid var(--border-hover);
+  border-radius: 7px;
+  font-size: 12px; font-weight: 500;
+  color: var(--text);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  animation: toastIn 0.2s ease;
+  max-width: 280px;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+ 
+/* ── Loading ── */
+.dots { display: inline-flex; gap: 3px; align-items: center; }
+.dots span {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: currentColor; opacity: 0.3;
+  animation: dot 1.2s ease-in-out infinite;
+}
+.dots span:nth-child(2) { animation-delay: .2s; }
+.dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes dot {
+  0%,100% { opacity: 0.2; transform: scale(.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-top-color: rgba(255,255,255,0.7);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+ 
+/* ── Fade ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fu { animation: fadeUp .3s ease both; }
+.fu2 { animation: fadeUp .3s .06s ease both; }
+.fu3 { animation: fadeUp .3s .12s ease both; }
+ 
+/* ── Selection ── */
+::selection { background: var(--accent-blue-dim); color: var(--accent-blue); }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 10px; }
+ 
+@media (max-width: 860px) {
+  .landing-grid { grid-template-columns: 1fr; }
+  .landing-left { padding: 48px 32px; border-right: none; border-bottom: 1px solid var(--border); }
+  .landing-right { padding: 32px; }
+  .scanner-cards { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .sidebar { display: none; }
+  .main-area { padding: 24px 20px; }
+  .nav { padding: 0 20px; }
+}
+</style>
+</head>
+<body>
+ 
+<div class="toast-wrap" id="toastWrap"></div>
+ 
+<!-- ══════════════════════════════════════════
+  LANDING
+══════════════════════════════════════════ -->
+<div class="page active" id="page-landing">
+  <nav class="nav">
+    <div class="nav-logo" onclick="showPage('page-landing')">Intern<span>Guard</span></div>
+    <div class="nav-right" id="land-nav-r">
+      <button class="btn btn-ghost" onclick="showPage('page-login')">Sign in</button>
+      <button class="btn btn-outline btn-sm" onclick="showPage('page-signup')">Get started</button>
+    </div>
+  </nav>
+ 
+  <div class="container" style="flex:1; display:flex; flex-direction:column;">
+    <div class="landing-grid" style="flex:1;">
+ 
+      <div class="landing-left fu">
+        <div class="landing-eyebrow">Free · No account required</div>
+        <h1 class="landing-h1">Know if an offer is <span>genuine</span> before you respond.</h1>
+        <p class="landing-desc">Paste a suspicious internship email or enter a company name — we'll check it against common scam patterns in seconds.</p>
+        <div class="landing-actions">
+          <button class="btn btn-solid btn-lg" onclick="guestScan('email')">Check an email</button>
+          <button class="btn btn-outline btn-lg" onclick="guestScan('company')">Verify a company</button>
+        </div>
+        <div class="landing-stats">
+          <div>
+            <div class="stat-val">9</div>
+            <div class="stat-label">Detection rules</div>
+          </div>
+          <div>
+            <div class="stat-val">2</div>
+            <div class="stat-label">Scan types</div>
+          </div>
+          <div>
+            <div class="stat-val">Free</div>
+            <div class="stat-label">Always</div>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="landing-right fu2">
+        <div style="margin-bottom: 16px;">
+          <div class="feature-row" onclick="guestScan('email')">
+            <div class="feature-row-head">
+              <span class="feature-num">01</span>
+              <span class="feature-title">Paste your email</span>
+            </div>
+            <p class="feature-desc">Drop in the full message — subject, sender, body. No clean-up required.</p>
+          </div>
+          <div class="feature-row" onclick="guestScan('email')">
+            <div class="feature-row-head">
+              <span class="feature-num">02</span>
+              <span class="feature-title">Pattern matching</span>
+            </div>
+            <p class="feature-desc">We check for payment requests, free-domain senders, urgency tactics, and more.</p>
+          </div>
+          <div class="feature-row" onclick="guestScan('email')">
+            <div class="feature-row-head">
+              <span class="feature-num">03</span>
+              <span class="feature-title">Plain-language verdict</span>
+            </div>
+            <p class="feature-desc">A clear result with specific flags — not a score you have to decode.</p>
+          </div>
+        </div>
+ 
+        <div class="scanner-cards">
+          <div class="card scanner-pick" onclick="guestScan('email')">
+            <div class="scanner-pick-icon">📧</div>
+            <div class="scanner-pick-title">Email Scanner</div>
+            <p class="scanner-pick-desc">Analyse a message you received about an internship.</p>
+            <span class="scanner-pick-cta">Open scanner →</span>
+          </div>
+          <div class="card scanner-pick" onclick="guestScan('company')">
+            <div class="scanner-pick-icon">🏢</div>
+            <div class="scanner-pick-title">Company Check</div>
+            <p class="scanner-pick-desc">Verify if the company that reached out actually exists.</p>
+            <span class="scanner-pick-cta">Open checker →</span>
+          </div>
+        </div>
+      </div>
+ 
+    </div>
+  </div>
+ 
+  <div class="landing-footer">
+    <span>Built for students. Results are indicative, not definitive.</span>
+    <div style="display:flex; gap:20px;">
+      <a onclick="showPage('page-login')">Sign in</a>
+      <a onclick="showPage('page-signup')">Sign up</a>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════════
+  LOGIN
+══════════════════════════════════════════ -->
+<div class="page" id="page-login">
+  <nav class="nav">
+    <div class="nav-logo" onclick="showPage('page-landing')">Intern<span>Guard</span></div>
+    <div class="nav-right">
+      <span style="font-size:12px; color:var(--text-3);">No account?</span>
+      <button class="btn btn-outline btn-sm" onclick="showPage('page-signup')">Sign up</button>
+    </div>
+  </nav>
+  <div class="auth-wrap">
+    <div class="card auth-card fu">
+      <div class="auth-kicker">Welcome back</div>
+      <h2 class="auth-title">Sign in</h2>
+      <p class="auth-sub">Access your scan history and saved results.</p>
+      <div class="auth-form">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="loginEmail" placeholder="you@example.com"/>
+          <span class="form-error" id="loginEmailErr">Enter a valid email address.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="loginPassword" placeholder="Your password"/>
+          <span class="form-error" id="loginPasswordErr">Password must be at least 6 characters.</span>
+        </div>
+        <button class="btn btn-solid btn-full" id="loginBtn" onclick="handleLogin()">Sign in</button>
+        <div class="auth-divider">or</div>
+        <button class="btn btn-outline btn-full" onclick="continueAsGuest()">Continue as guest</button>
+      </div>
+      <div class="auth-footer">No account? <a onclick="showPage('page-signup')">Sign up free</a></div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════════
+  SIGNUP
+══════════════════════════════════════════ -->
+<div class="page" id="page-signup">
+  <nav class="nav">
+    <div class="nav-logo" onclick="showPage('page-landing')">Intern<span>Guard</span></div>
+    <div class="nav-right">
+      <span style="font-size:12px; color:var(--text-3);">Have an account?</span>
+      <button class="btn btn-outline btn-sm" onclick="showPage('page-login')">Sign in</button>
+    </div>
+  </nav>
+  <div class="auth-wrap">
+    <div class="card auth-card fu">
+      <div class="auth-kicker">Get started</div>
+      <h2 class="auth-title">Create account</h2>
+      <p class="auth-sub">Free. No card needed. 30 seconds.</p>
+      <div class="auth-form">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-input" id="signupName" placeholder="Your name"/>
+          <span class="form-error" id="signupNameErr">Enter your name.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="signupEmail" placeholder="you@example.com"/>
+          <span class="form-error" id="signupEmailErr">Enter a valid email address.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="signupPassword" placeholder="At least 6 characters"/>
+          <span class="form-error" id="signupPasswordErr">Minimum 6 characters.</span>
+        </div>
+        <button class="btn btn-solid btn-full" id="signupBtn" onclick="handleSignup()">Create account</button>
+        <div class="auth-divider">or</div>
+        <button class="btn btn-outline btn-full" onclick="continueAsGuest()">Continue as guest</button>
+      </div>
+      <div class="auth-footer">Have an account? <a onclick="showPage('page-login')">Sign in</a></div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════════
+  DASHBOARD
+══════════════════════════════════════════ -->
+<div class="page" id="page-dashboard">
+  <nav class="nav">
+    <div class="nav-logo" onclick="showPage('page-landing')">Intern<span>Guard</span></div>
+    <div class="nav-right">
+      <button class="btn btn-ghost btn-sm" onclick="handleLogout()">Sign out</button>
+    </div>
+  </nav>
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Tools</div>
+        <button class="sidebar-btn active" id="nav-email" onclick="switchTab('email')">
+          <span class="si">📧</span> Email Scanner
+        </button>
+        <button class="sidebar-btn" id="nav-company" onclick="switchTab('company')">
+          <span class="si">🏢</span> Company Check
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Account</div>
+        <button class="sidebar-btn" id="nav-history" onclick="switchTab('history')">
+          <span class="si">🕐</span> History
+        </button>
+        <button class="sidebar-btn" id="nav-settings" onclick="switchTab('settings')">
+          <span class="si">⚙️</span> Settings
+        </button>
+      </div>
+      <div class="user-pill">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <span class="user-name" id="userDisplay">Guest</span>
+      </div>
+    </aside>
+    <main class="main-area" id="dashMain"></main>
+  </div>
+</div>
+ 
+<script>
+// ── State ──────────────────────────────
+let currentUser = null;
+let currentPage = 'page-landing';
+let currentTab = 'email';
+ 
+// ── Storage ────────────────────────────
+const getUsers = () => JSON.parse(localStorage.getItem('ig_users') || '{}');
+const saveUsers = u => localStorage.setItem('ig_users', JSON.stringify(u));
+const histKey = () => currentUser ? `ig_hist_${currentUser.email}` : 'ig_hist_guest';
+const getHist = () => JSON.parse(localStorage.getItem(histKey()) || '[]');
+const saveHist = h => localStorage.setItem(histKey(), JSON.stringify(h));
+function addHist(item) {
+  const h = getHist();
+  h.unshift({ ...item, id: Date.now(), ts: new Date().toISOString() });
+  saveHist(h.slice(0,50));
+}
+ 
+// ── Navigation ─────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  currentPage = id;
+  window.scrollTo(0,0);
+}
+function guestScan(tab) { enterDash(null); switchTab(tab); }
+function continueAsGuest() { enterDash(null); }
+function enterDash(user) {
+  currentUser = user;
+  updateUserUI();
+  showPage('page-dashboard');
+  switchTab(currentTab);
+}
+function updateUserUI() {
+  const av = document.getElementById('userAvatar');
+  const dn = document.getElementById('userDisplay');
+  if (currentUser) {
+    av.textContent = currentUser.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    dn.textContent = currentUser.name.split(' ')[0];
+  } else {
+    av.textContent = '?';
+    dn.textContent = 'Guest';
+  }
+}
+function handleLogout() {
+  currentUser = null;
+  showPage('page-landing');
+  toast('Signed out.');
+}
+ 
+// ── Auth ───────────────────────────────
+const validEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+ 
+function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw = document.getElementById('loginPassword').value;
+  let ok = true;
+  clearErrs(['loginEmailErr','loginPasswordErr']);
+  if (!validEmail(email)) { showErr('loginEmailErr'); ok = false; }
+  if (pw.length < 6) { showErr('loginPasswordErr'); ok = false; }
+  if (!ok) return;
+  const btn = document.getElementById('loginBtn');
+  setBtnLoad(btn, true, 'Signing in…');
+  setTimeout(() => {
+    setBtnLoad(btn, false, 'Sign in');
+    const u = getUsers();
+    if (!u[email]) { showErr('loginEmailErr','No account with that email.'); return; }
+    if (u[email].password !== pw) { showErr('loginPasswordErr','Incorrect password.'); return; }
+    enterDash(u[email]);
+    toast(`Welcome back, ${u[email].name.split(' ')[0]}.`);
+  }, 600);
+}
+ 
+function handleSignup() {
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pw = document.getElementById('signupPassword').value;
+  let ok = true;
+  clearErrs(['signupNameErr','signupEmailErr','signupPasswordErr']);
+  if (!name) { showErr('signupNameErr'); ok = false; }
+  if (!validEmail(email)) { showErr('signupEmailErr'); ok = false; }
+  if (pw.length < 6) { showErr('signupPasswordErr'); ok = false; }
+  if (!ok) return;
+  const btn = document.getElementById('signupBtn');
+  setBtnLoad(btn, true, 'Creating…');
+  setTimeout(() => {
+    setBtnLoad(btn, false, 'Create account');
+    const u = getUsers();
+    if (u[email]) { showErr('signupEmailErr','Email already registered.'); return; }
+    const user = { name, email, password: pw, createdAt: new Date().toISOString() };
+    u[email] = user; saveUsers(u);
+    enterDash(user);
+    toast(`Account created. Welcome, ${name.split(' ')[0]}.`);
+  }, 600);
+}
+ 
+// ── Dashboard Tabs ──────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('nav-' + tab);
+  if (el) el.classList.add('active');
+  const m = document.getElementById('dashMain');
+  m.innerHTML = '';
+  if (tab === 'email') renderEmailScanner();
+  else if (tab === 'company') renderCompanyCheck();
+  else if (tab === 'history') renderHistory();
+  else if (tab === 'settings') renderSettings();
+}
+ 
+// ── Email Scanner ──────────────────────
+function renderEmailScanner() {
+  const m = document.getElementById('dashMain');
+  m.innerHTML = `
+    <div class="page-header fu">
+      <h1>Email Scanner</h1>
+      <p>Paste a message you received and we'll identify suspicious patterns.</p>
+    </div>
+    <div class="two-col">
+      <div class="card scan-card fu">
+        <div class="scan-form">
+          <div class="form-group">
+            <label class="form-label">Sender address</label>
+            <input type="email" class="form-input" id="scanSender" placeholder="hr@technova-careers.net"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subject line</label>
+            <input type="text" class="form-input" id="scanSubject" placeholder="Internship Offer — Software Dev"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email body</label>
+            <textarea class="form-input" id="scanBody" rows="8" placeholder="Paste the full email text…" oninput="updateCC(this,'eCC')"></textarea>
+            <div class="char-hint" id="eCC">0 chars</div>
+          </div>
+          <button class="btn btn-solid btn-full" id="emailBtn" onclick="runEmailScan()">Check this email</button>
+        </div>
+      </div>
+      <div class="card scan-card fu2" id="emailResult">
+        <div class="result-empty">
+          <div class="result-empty-icon">🔍</div>
+          <p>Results appear here after scanning.</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+ 
+function updateCC(el, id) {
+  const c = document.getElementById(id);
+  if (c) c.textContent = `${el.value.length} chars`;
+}
+ 
+function runEmailScan() {
+  const sender = document.getElementById('scanSender').value.trim();
+  const subject = document.getElementById('scanSubject').value.trim();
+  const body = document.getElementById('scanBody').value.trim();
+  if (!sender && !subject && !body) { toast('Fill in at least one field.'); return; }
+  const btn = document.getElementById('emailBtn');
+  setBtnLoad(btn, true, 'Checking…');
+  const r = document.getElementById('emailResult');
+  r.innerHTML = `<div class="result-empty"><div class="dots" style="color:var(--text-3)"><span></span><span></span><span></span></div><p style="margin-top:8px">Analysing…</p></div>`;
+  setTimeout(() => {
+    setBtnLoad(btn, false, 'Check this email');
+    const res = analyseEmail(sender, subject, body);
+    renderResult('emailResult', res);
+    addHist({ type:'email', target: subject || sender || 'Email scan', verdict: res.verdict });
+  }, 1100);
+}
+ 
+function analyseEmail(sender, subject, body) {
+  const flags = [];
+  const text = (sender+' '+subject+' '+body).toLowerCase();
+ 
+  if (sender) {
+    if (/gmail|yahoo|hotmail|outlook|protonmail/.test(sender) && !/edu/.test(sender))
+      flags.push({ sev:'high', label:'Free email provider', detail:'Legitimate companies use their own domain, not Gmail or Yahoo.' });
+    const domain = (sender.split('@')[1]||'');
+    if (/careers|jobs|hr|recruit/.test(domain) && /\d/.test(domain))
+      flags.push({ sev:'medium', label:'Suspicious sender domain', detail:'Domains mixing numbers with "careers/hr" are commonly created for fake recruitment.' });
+  }
+  if (/you have been selected|we are pleased to offer|congratulations.*intern/.test(text))
+    flags.push({ sev:'medium', label:'Unsolicited offer language', detail:'"You have been selected" out of the blue is a common scam opener.' });
+  if (/pay|fee|deposit|registration fee|security deposit|advance/.test(text))
+    flags.push({ sev:'high', label:'Payment or fee mentioned', detail:'Legitimate internships never charge anything upfront. Major red flag.' });
+  if (/whatsapp|telegram|text us|call this number/.test(text))
+    flags.push({ sev:'high', label:'Moves communication off-platform', detail:'Scammers push to WhatsApp or phone to avoid a paper trail.' });
+  if (/weekly salary|high pay|earn from home|₹\d{4,}|usd \d{3,}/.test(text))
+    flags.push({ sev:'high', label:'Unrealistic compensation', detail:'Inflated pay is a lure tactic. Real internships are transparent about stipends.' });
+  if (/work from home|no experience|no skills required/.test(text))
+    flags.push({ sev:'medium', label:'Vague or zero requirements', detail:'Real roles specify what they need. "No experience required" is often bait.' });
+  if (/click.*link|verify.*account|confirm.*details/.test(text))
+    flags.push({ sev:'high', label:'Link click or account verification', detail:'Classic phishing — asking you to verify identity via a link.' });
+  if (/urgent|limited time|respond within 24 hours|act now/.test(text))
+    flags.push({ sev:'medium', label:'Artificial urgency', detail:'Pressure tactics stop you thinking critically. Legitimate offers don\'t expire in 24 hours.' });
+  if (body.length > 20 && !/interview|cv|resume|portfolio|application/.test(text))
+    flags.push({ sev:'low', label:'No application process mentioned', detail:'Real recruiters ask for a CV or mention an interview step.' });
+ 
+  const hi = flags.filter(f=>f.sev==='high').length;
+  const me = flags.filter(f=>f.sev==='medium').length;
+  let verdict, summary;
+  if (hi >= 2 || (hi >= 1 && me >= 2)) {
+    verdict='scam'; summary=`This email triggered ${flags.length} flag${flags.length!==1?'s':''} — including ${hi} high-severity concern${hi!==1?'s':''}. Don't reply or click any links in it.`;
+  } else if (hi === 1 || me >= 2) {
+    verdict='warn'; summary=`Some characteristics here are worth double-checking. Verify the company independently before responding.`;
+  } else if (!flags.length) {
+    verdict='safe'; summary=`No obvious red flags detected. Still, verify the company exists on LinkedIn before sharing personal documents.`;
+  } else {
+    verdict='warn'; summary=`A couple of minor things to note. Proceed with some caution.`;
+  }
+  const score = Math.max(0, 100 - hi*30 - me*14 - flags.filter(f=>f.sev==='low').length*5);
+  return { verdict, summary, flags, score };
+}
+ 
+// ── Company Check ──────────────────────
+function renderCompanyCheck() {
+  const m = document.getElementById('dashMain');
+  m.innerHTML = `
+    <div class="page-header fu">
+      <h1>Company Check</h1>
+      <p>Enter what you know and we'll flag anything that looks suspicious.</p>
+    </div>
+    <div class="two-col">
+      <div class="card scan-card fu">
+        <div class="scan-form">
+          <div class="form-group">
+            <label class="form-label">Company name</label>
+            <input type="text" class="form-input" id="compName" placeholder="TechNova Solutions Ltd."/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Website (optional)</label>
+            <input type="text" class="form-input" id="compSite" placeholder="technova-careers.net"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Additional context</label>
+            <textarea class="form-input" id="compCtx" rows="5" placeholder="How they contacted you, what the offer said, etc." oninput="updateCC(this,'cCC')"></textarea>
+            <div class="char-hint" id="cCC">0 chars</div>
+          </div>
+          <button class="btn btn-solid btn-full" id="compBtn" onclick="runCompanyScan()">Check this company</button>
+        </div>
+      </div>
+      <div class="card scan-card fu2" id="companyResult">
+        <div class="result-empty">
+          <div class="result-empty-icon">🏢</div>
+          <p>Verification results appear here.</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+ 
+function runCompanyScan() {
+  const name = document.getElementById('compName').value.trim();
+  const site = document.getElementById('compSite').value.trim();
+  const ctx = document.getElementById('compCtx').value.trim();
+  if (!name && !site) { toast('Enter a company name or website.'); return; }
+  const btn = document.getElementById('compBtn');
+  setBtnLoad(btn, true, 'Checking…');
+  const r = document.getElementById('companyResult');
+  r.innerHTML = `<div class="result-empty"><div class="dots" style="color:var(--text-3)"><span></span><span></span><span></span></div><p style="margin-top:8px">Analysing…</p></div>`;
+  setTimeout(() => {
+    setBtnLoad(btn, false, 'Check this company');
+    const res = analyseCompany(name, site, ctx);
+    renderResult('companyResult', res);
+    addHist({ type:'company', target: name || site || 'Company check', verdict: res.verdict });
+  }, 1000);
+}
+ 
+function analyseCompany(name, website, context) {
+  const flags = [];
+  const text = (name+' '+website+' '+context).toLowerCase();
+  if (website) {
+    const w = website.toLowerCase().replace(/^https?:\/\//,'');
+    if (/careers|jobs|hr|recruit|hiring/.test(w))
+      flags.push({ sev:'medium', label:'Career-focused domain', detail:'Real companies recruit from their main domain, not separate "careers" sites.' });
+    if (/\.(xyz|top|click|tk|ml|ga|cf|gq|pw)$/.test(w))
+      flags.push({ sev:'high', label:'Suspicious TLD', detail:'Free or throwaway extensions (.xyz, .top, .tk) are common for scam sites.' });
+    if (/\d{2,}/.test(w.split('.')[0]))
+      flags.push({ sev:'medium', label:'Numbers in domain', detail:'Legitimate company domains rarely have numbers. May indicate a recently registered fake.' });
+  }
+  if (name) {
+    if (/\b(solutions|corp|global|international|enterprises|technologies)\b/.test(name.toLowerCase()) && name.split(' ').length <= 2)
+      flags.push({ sev:'low', label:'Generic name pattern', detail:'Very short names with buzzwords like "Global Solutions" are easy to fabricate.' });
+  }
+  if (/cold call|out of nowhere|never applied|random email|found your profile/.test(text))
+    flags.push({ sev:'medium', label:'Unsolicited outreach', detail:'Not always a scam — but warrants extra verification when combined with other flags.' });
+  if (/no interview|skip.*interview|immediate.*offer/.test(text))
+    flags.push({ sev:'high', label:'Offer without interview', detail:'Receiving a confirmed offer without any interview is a near-universal scam signal.' });
+  if (/pay|fee|purchase|buy|security deposit/.test(text))
+    flags.push({ sev:'high', label:'Payment mentioned', detail:'No legitimate company charges interns before or during placement.' });
+  if (/no address|no office|remote only/.test(text))
+    flags.push({ sev:'medium', label:'No verifiable address', detail:'Real companies appear on LinkedIn, Glassdoor, or government registries.' });
+ 
+  const hi = flags.filter(f=>f.sev==='high').length;
+  const me = flags.filter(f=>f.sev==='medium').length;
+  let verdict, summary;
+  if (hi >= 1) {
+    verdict='scam'; summary=`${flags.length} issue${flags.length!==1?'s':''} found — at least one serious. Strongly recommend verifying on LinkedIn before sharing any documents.`;
+  } else if (me >= 2 || flags.length >= 3) {
+    verdict='warn'; summary=`A few things worth checking further. Search the company name + "scam" or "reviews" before proceeding.`;
+  } else if (!flags.length) {
+    verdict='safe'; summary=`No obvious warning signs from what you shared. Still recommend confirming on LinkedIn or Google before sharing personal documents.`;
+  } else {
+    verdict='warn'; summary=`A minor concern noted. Do some independent verification before proceeding.`;
+  }
+  const score = Math.max(0, 100 - hi*35 - me*15 - flags.filter(f=>f.sev==='low').length*8);
+  return { verdict, summary, flags, score };
+}
+ 
+// ── Shared Result Renderer ─────────────
+function renderResult(containerId, res) {
+  const el = document.getElementById(containerId);
+  const icons = { safe:'✓', warn:'!', scam:'✕' };
+  const labels = { safe:'Looks legitimate', warn:'Proceed carefully', scam:'Likely a scam' };
+  const barClr = { safe:'#4ade80', warn:'#fbbf24', scam:'#f87171' };
+ 
+  const flagsHTML = res.flags.length ? `
+    <div>
+      <div class="section-kicker">Flags detected</div>
+      <div class="flags">
+        ${res.flags.map(f=>`
+          <div class="flag">
+            <div class="flag-dot ${f.sev}"></div>
+            <div class="flag-content">
+              <strong>${esc(f.label)}</strong>
+              <span>${esc(f.detail)}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : '';
+ 
+  el.innerHTML = `
+    <div class="result-body fu">
+      <div class="verdict-block ${res.verdict}">
+        <div class="verdict-icon-lg" style="
+          width:32px;height:32px;border-radius:50%;
+          display:flex;align-items:center;justify-content:center;
+          font-size:14px;font-weight:900;font-family:var(--font-display);
+          background:${res.verdict==='safe'?'var(--green-dim)':res.verdict==='scam'?'var(--red-dim)':'var(--amber-dim)'};
+          color:${res.verdict==='safe'?'var(--green)':res.verdict==='scam'?'var(--red)':'var(--amber)'};
+          border:1px solid ${res.verdict==='safe'?'var(--green-border)':res.verdict==='scam'?'var(--red-border)':'var(--amber-border)'};
+        ">${icons[res.verdict]}</div>
+        <div class="verdict-meta">
+          <div class="verdict-kicker">Verdict</div>
+          <div class="verdict-label ${res.verdict}">${labels[res.verdict]}</div>
+        </div>
+      </div>
+      <p class="result-summary">${esc(res.summary)}</p>
+      <div>
+        <div class="section-kicker">Trust score</div>
+        <div class="score-track">
+          <div class="score-fill" style="width:${res.score}%;background:${barClr[res.verdict]}"></div>
+        </div>
+        <div class="score-labels"><span>Low</span><span>${res.score} / 100</span><span>High</span></div>
+      </div>
+      ${flagsHTML}
+      ${res.verdict!=='safe'?`<p class="result-note">If this looks like a scam: don't reply, don't click any links, or report to your placement cell of your Organization.</p>`:''}
+    </div>
+  `;
+}
+ 
+// ── History ────────────────────────────
+function renderHistory() {
+  const m = document.getElementById('dashMain');
+  const h = getHist();
+  const ago = iso => {
+    const d = (Date.now()-new Date(iso))/1000;
+    if (d<60) return 'just now';
+    if (d<3600) return `${Math.floor(d/60)}m ago`;
+    if (d<86400) return `${Math.floor(d/3600)}h ago`;
+    return new Date(iso).toLocaleDateString();
+  };
+  m.innerHTML = `
+    <div class="page-header fu">
+      <h1>History</h1>
+      <p>${h.length ? `${h.length} scan${h.length!==1?'s':''} logged.` : 'No scans yet.'}</p>
+    </div>
+    <div class="card fu" style="overflow:hidden">
+      ${!h.length ? `<div class="hist-empty"><p>Run an Email Scan or Company Check to see results here.</p></div>` : `
+        <div class="hist-list" style="padding:8px">
+          ${h.map(item=>`
+            <div class="hist-item">
+              <div class="hist-type">${item.type==='email'?'📧':'🏢'}</div>
+              <div class="hist-info">
+                <div class="hist-target">${esc(item.target)}</div>
+                <div class="hist-meta">${item.type==='email'?'Email':'Company'} · ${ago(item.ts)}</div>
+              </div>
+              <span class="tag tag-${item.verdict}">${item.verdict}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div style="padding:10px 14px;border-top:1px solid var(--border)">
+          <button class="btn btn-sm btn-ghost" style="color:var(--text-3);font-size:11px" onclick="clearHist()">Clear history</button>
+        </div>
+      `}
+    </div>
+  `;
+}
+ 
+function clearHist() {
+  if (!confirm('Clear all history?')) return;
+  localStorage.removeItem(histKey());
+  renderHistory();
+  toast('History cleared.');
+}
+ 
+// ── Settings ───────────────────────────
+function renderSettings() {
+  const m = document.getElementById('dashMain');
+  const guest = !currentUser;
+  m.innerHTML = `
+    <div class="page-header fu"><h1>Settings</h1></div>
+    <div class="settings-wrap fu">
+      ${guest ? `
+        <div class="card setting-card">
+          <h3>Guest session</h3>
+          <p>Create an account to persist history across sessions.</p>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-solid btn-sm" onclick="showPage('page-signup')">Create account</button>
+            <button class="btn btn-outline btn-sm" onclick="showPage('page-login')">Sign in</button>
+          </div>
+        </div>
+      ` : `
+        <div class="card setting-card">
+          <h3>Account</h3>
+          <p>Signed in as <strong style="color:var(--text)">${esc(currentUser.email)}</strong></p>
+          <button class="btn btn-outline btn-sm" onclick="handleLogout()">Sign out</button>
+        </div>
+        <div class="card setting-card danger">
+          <h3>Delete account</h3>
+          <p>Removes your account and all associated history. This can't be undone.</p>
+          <button class="btn btn-danger-ghost btn-sm" onclick="deleteAcct()">Delete account</button>
+        </div>
+      `}
+      <div class="card setting-card">
+        <h3>About</h3>
+        <p>InternGuard uses rule-based pattern matching to flag suspicious signals in internship communications. It is not connected to any external database and results are indicative only. Always do your own research before sharing personal documents.</p>
+      </div>
+    </div>
+  `;
+}
+ 
+function deleteAcct() {
+  if (!confirm('Delete your account? This cannot be undone.')) return;
+  const u = getUsers();
+  if (currentUser) { delete u[currentUser.email]; saveUsers(u); localStorage.removeItem(`ig_hist_${currentUser.email}`); }
+  currentUser = null;
+  showPage('page-landing');
+  toast('Account deleted.');
+}
+ 
+// ── Utils ──────────────────────────────
+function toast(msg, dur=3000) {
+  const c = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => {
+    t.style.transition = 'opacity .2s';
+    t.style.opacity = '0';
+    setTimeout(() => t.remove(), 220);
+  }, dur);
+}
+ 
+function setBtnLoad(btn, on, text) {
+  if (on) {
+    btn.disabled = true;
+    btn.innerHTML = `<div class="spinner"></div> ${text}`;
+    btn.style.opacity = '.7';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = text;
+    btn.style.opacity = '';
+  }
+}
+ 
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (msg) el.textContent = msg;
+  el.classList.add('visible');
+}
+ 
+function clearErrs(ids) {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('visible');
+  });
+}
+ 
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+ 
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (currentPage === 'page-login') handleLogin();
+  else if (currentPage === 'page-signup') handleSignup();
+});
+</script>
+</body>
+</html>
